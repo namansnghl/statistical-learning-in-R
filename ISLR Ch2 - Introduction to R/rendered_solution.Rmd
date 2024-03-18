@@ -1,0 +1,403 @@
+---
+title: "Chapter 2: Introduction to R"
+author: "NAMAN SINGHAL"
+date: "03/16/2024"
+output: html_document
+---
+
+# ISLR Book
+In this notebook, we will be exploring the content of ISLR Lab 2.3, going through each command while examining the associated observations and summarizing understanding. We will later also solve excercise.
+
+## Lab: Introduction to R
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Basic Commands
+
+R is a function based language. `c()` function is used to concat same datatypes to a higher dimentionality. Below we are transforming integers to a single Vector.
+```{r}
+x <- c(1,3,2,5)
+x
+```
+
+The `<-` symbol can be interchanged with `=` to assign values to variables. The difference is that `<-` creates a global variable within the user workspace while `=` creates it locally in a function.
+```{r}
+x = c(1,6,2)  # vector
+x
+y = c(1,4,3)
+```
+
+Using the `?` before any function we can access the help docs for it.
+```{r}
+?c
+```
+
+`length()` can be used to check dimentions of a variable in R.
+```{r}
+length(x)
+length(y)
+```
+
+We can use `+` to perform vector addition on vectors with same dimension
+```{r}
+x+y
+```
+
+To check for variables declared so far in user space we can use `ls()`. We've declared only `x` and `y`.
+```{r}
+ls()
+```
+
+To delete a variable we can use `rm()`, similar to `del()` in python
+```{r}
+rm(x,y)
+ls()
+test_var1 <- 4
+test_var2 <- c(1,2,3)
+ls()
+```
+
+We can also delete all objects in one go by passing all `ls()` returned objects to `rm()`
+```{r}
+rm(list=ls())
+ls()
+```
+
+`matrix()` - like vectors ve can also create matrices in R with this function.The first argument in data should be a vector. As observed below in method 2, each vector is of same datatype in the matrix.
+`is.matrix()` similarly tests whether the argument passed is a matrix or not
+```{r}
+# Method 1
+matrix(c(9,92,19,23,4,0.), nrow = 2)
+# Method 2
+matrix(c(9,2,19,23,4.1,0.), nrow = 3, ncol=2)
+```
+
+From above we observe that R fills the matrix by column. We can change this to make it fill by row.
+```{r}
+matrix(c(9,2,19,23,4.1,0.), nrow = 3, ncol=2, byrow = TRUE)
+```
+
+`sqrt()` gets the square root of each element passed in argument
+```{r}
+x = 4
+vec_x = c(3,16,100,7)
+mat_x = matrix(vec_x, 2)
+
+# Integer
+sqrt(x)
+
+# Vector
+sqrt(vec_x)
+
+# Matrix
+sqrt(mat_x)
+```
+
+`^` operator can be used to raise a variable to power
+```{r}
+vec_x^3
+```
+
+We can generate random vectors from a normal distribution with `rnorm()`.
+```{r}
+rand_x1 = rnorm(6)
+rand_x1
+```
+
+`cor()` is used to check correlation between two variables
+```{r}
+rand_y1 = rand_x1 + rnorm(6, mean=20)
+rand_y1
+cor(rand_x1, rand_y1)
+```
+
+We can set seed to get the same output from a random data gen function
+```{r}
+set.seed(3)
+```
+
+Following are some useful functions
+```{r}
+mean(vec_x)
+var(vec_x)
+sd(vec_x)
+```
+
+
+# Graphics
+
+`plot()` can be used to make plots in R. Default plot is scatter.
+```{r}
+x = rnorm(100)
+y=rnorm(100)
+plot(x,y, xlab = "This is x Label", ylab = "This is y label",
+     main = "This is title")
+```
+
+`jpeg()` and `pdf()` can be used to export plots
+```{r}
+jpeg("Figuree.png")
+plot(x,y,col = "green")
+dev.off() # indicates end of plot creation
+```
+
+`seq()` can be used to create a vector. Similar to `range()` from python
+```{r}
+seq(1,10)
+seq(-1,1,length=10)
+```
+
+`pi` represents the math pi in R. `outer()` is a function to get outer product of X and Y arrays. `function()` is a keyword we use to create functions in R. We can create both multiline functions or single line once like `lambda()` in python
+We will use `contour()` to create a contour plot now. We need the x, y and the z values to make this plot
+```{r}
+x = y = seq(-pi, pi, length=50)
+f = outer(x,y, function(x,y) cos(y)/(1+x^2))
+contour(x,y,f)
+contour(x,y,f, nlevels = 30) # nlevels controls number of lines
+```
+
+`image()` gives color to contour maps and produce heatmap. Alternatively, `persp()` creates a 3D plot. `theta` horizontaly rotates the plot and `phi` does it vertically
+```{r}
+image(x,y,f)
+persp(x,y,f)
+persp(x,y,f, theta = 60)
+persp(x,y,f, theta = 60, phi=-10)
+```
+
+
+# Indexing Data
+
+1:16 generates numbers 1 to 16. We can then index matrix in following way
+```{r}
+A=matrix(1:16, 4,4)
+A
+A[1,2]
+```
+
+We can also select a range of rows and columns in matrix.
+```{r}
+A[c(1,3), c(2,4)] # Rows 1 and 3, Columns 2 and 4
+A[2:4,1:2]
+A[, 3:ncol(A)]
+A[2,]
+```
+
+Negative values indicate keep all rows/col except the one specified
+```{r}
+A[-c(2, 3),]
+```
+
+Checking shape
+```{r}
+dim(A)
+```
+
+
+# Loading Data
+
+`read.table()` and `write.table()` are often used to read write data in R
+```{r}
+auto = read.table('Auto.data')
+head(auto, 5)
+```
+
+We need to load data properly, we will use the following command parameters
+```{r}
+auto = read.table('Auto.data', header=T, na.strings = "?")
+dim(auto)
+head(auto, 5)
+```
+
+`na.omit()` removes rows with Nulls
+```{r}
+dim(na.omit(auto))
+```
+
+We can get the column names with `names()`
+```{r}
+names(auto)
+```
+
+
+
+# Additional Graphical and Numerical Summaries
+
+`<table>$<column>` is the syntax we use to fetch certain column `<column>` from table `<table>`
+```{r}
+head(auto$cylinders, 20) # Top 20 values from Cylinder column
+```
+
+`attach()` We can also use this function on a dataframe or table to make R aware of all the column names. Then we wont have to use the above notation.
+```{r}
+plot(auto$cylinders, auto$mpg)
+attach(auto)
+plot(cylinders, mpg)
+```
+
+Because cylinders has numbers R treats it like a Numerical/Quantitative variable. We can convert it to categorical/qualitative variable with `as.factor()`. Doing so will create box plot.
+```{r}
+cylinders = as.factor(cylinders)
+plot(cylinders, mpg)
+plot(cylinders, mpg, col="orange", varwidth=T, horizontal=T)
+# varwidth gives thickness to X according to counts
+# horizontal makes plot horizontally
+```
+
+
+```{r}
+hist(mpg)
+hist(mpg, col=2, breaks = 17)
+```
+
+`pairs()` creates a pairplot of scatterplot.
+```{r}
+pairs(auto[, -ncol(auto)]) # remove chr column
+pairs(~ mpg + displacement + weight, auto) # ~ denotes a formula specification in R.
+```
+
+
+```{r}
+summary(auto)
+summary(mpg)
+```
+
+
+```{r, include=FALSE}
+rm(list=ls())
+```
+
+## Exercise 2.4 Q8
+
+Here, we are using the `College` data set, found in  `College.csv`. 
+Before reading the data into R, it can be viewed in Excel or a text editor.
+
+1. Use the `read.csv()` function to read the data into R. Call the loaded data `college`. Make sure that you have the directory set to the correct location for the data.
+
+```{r}
+college = read.csv('College.csv', stringsAsFactors = TRUE)
+head(college, 3)
+```
+
+2. Look at the data using the `fix()` function. You should notice that the first column is just the name of each university. We don’t really want R to treat this as data. However, it may be handy to have these names for later. Try the following commands:
+
+```{r}
+rownames(college)=college[,1] 
+head(college, 3)
+#fix(college)
+```
+
+You should see that there is now a `row.names` column with the name of each university recorded. This means that R has given each row a name corresponding to the appropriate university. R will not try to perform calculations on the row names. However, we still need to eliminate the first column in the data where the names are stored. Try
+
+```{r}
+college=college[,-1] 
+head(college, 3)
+# fix(college)
+```
+
+Now you should see that the first data column is `Private`. Note that another column labeled `row.names` now appears before the `Private` column. However, this is not a data column but rather the name that R is giving to each row.
+
+3.   Please complete these parts.
+
+    Use the `summary()` function to produce a numerical summary of the variables in the data set.  
+    
+```{r}
+summary(college)
+```
+
+Use the `pairs()` function to produce a scatterplot matrix of the first ten columns or variables of the data. Recall that you can reference the first ten columns of a matrix `A` using `A[,1:10]`.  
+    
+```{r}
+pairs(college[,1:10])
+```
+
+Use the `plot()` function to produce side-by-side boxplots of `Outstate` versus `Private`.
+    
+```{r}
+attach(college)
+plot(Private, Outstate)
+```
+
+Create a new qualitative variable, called `Elite`, by *binning* the `Top10perc` variable. We are going to divide universities into two groups based on whether or not the proportion of students coming from the top 10% of their high school classes exceeds 50 %.
+    
+```{r}
+Elite=rep("No",nrow(college))
+Elite[college$Top10perc >50]="Yes"
+Elite=as.factor(Elite)
+college=data.frame(college ,Elite)
+```
+
+Use the `summary()` function to see how many elite universities there are. Now use the `plot()` function to produce side-by-side boxplots of `Outstate` versus `Elite`.
+    
+```{r}
+summary(college)
+```
+Use the `hist()` function to produce some histograms with 5 and 50 bins for `Outstate` and `Apps`. Use the command `par(mfrow=c(2,2))`: it will divide the print window into four regions so that four plots can be made simultaneously. 
+    
+```{r}
+par(mfrow = c(2, 2))
+
+# Histogram for Outstate with 5 bins
+hist(Outstate, breaks = 5, main = "Outstate Histogram (5 Bins)", xlab = "Outstate")
+
+# Histogram for Outstate with 50 bins
+hist(Outstate, breaks = 50, main = "Outstate Histogram (50 Bins)", xlab = "Outstate",)
+
+# Histogram for Apps with 5 bins
+hist(Apps, breaks = 5, main = "Apps Histogram (5 Bins)", xlab = "Apps")
+
+# Histogram for Apps with 50 bins
+hist(Apps, breaks = 50, main = "Apps Histogram (50 Bins)", xlab = "Apps")
+
+```
+
+*Continue exploring the data, and provide a brief summary of what you discover.* 
+
+This statement is intentionally vague: as a data scientist, it will be your job to propose hypotheses about the data, and then to use the data to address your hypotheses.  This is a creative, iterative, (and fun) process. 
+
+In this first lab I will propose four hypotheses for you.  You must address these hypotheses with the suggested approaches. The approach will be to produce one plot for each hypothesis in a 2 by 2 set of plots.  Discuss your findings for each case, including: whether the data supports or rejects the hypothesis, and to what degree the hypothesis is rejected or supported.  After addressing the four hypotheses, I would like for you to propose at least one more hypothesis, and  develop a methodology.  Brevity matters, and less is best.  Produce a single plot upon which to base your answer.  Long answers will be given little credit.  For this last part, you will be graded on the "interest" of the hypothesis, your approach to address it, and your discussion.  
+
+**Hypothesis 1. The tuition at the best colleges, as indicated by `Elite`, is higher than that at other colleges.**  
+**Methodology:** Use one-over-other horizontal red boxplots of `Outstate` for elite and non-elite colleges.  Title and label the axes of this plot thoughtfully. Carefully use this single plot to address this hypothesis.  Can you be precise about the word *higher* ?
+
+
+**Hypothesis 2. The enrollment rate at the best colleges, as indicated by `Elite`, is higher than that at other colleges.**  
+**Methodology:** Create a new variable called `EnrollRate`, using `Enroll` and `Accept`.  Use the `attach()` function to make your code cleaner. Use one-over-other horizontal green boxplots of `EnrollRate` for elite and non-elite colleges.  Title and label the axes of this plot thoughtfully. Carefully use this single plot to address this hypothesis.  Can you be precise about the word *higher* ? Can you comment on the presence of outliers in the boxplots? The enrollment rate is the fraction of accepted students who enrolled.
+
+
+**Hypothesis 3. The number of applications per enrolled student is higher at elite colleges than other colleges.** 
+**Methodology:** Use one-over-other horizontal blue boxplots of applications per enrolled student for elite and non-elite colleges. Title and label the axes of this plot thoughtfully. Carefully use this single plot to address this hypothesis.  Can you be precise about the word *higher* ?  Can you comment on the presence of outliers in the boxplots?
+
+**Hypothesis 4.  The fraction of alumni who donate is higher at elite colleges than other colleges.** **Methodology:** Use one-over-other horizontal cyan boxplots of `perc.alumni` for elite and non-elite colleges. Title and label the axes of this plot thoughtfully. Carefully use this single plot to address this hypothesis.  Can you be precise about the word *higher* ?
+    
+```{r}
+EnrollRate = Enroll/Accept
+
+par(mfrow = c(2, 2))
+plot(Elite, Outstate, horizontal=T, ylab="Elite college", xlab="Outstate tuition fee $",
+     main="Tuition fee range of colleges", col=2)
+plot(Elite, EnrollRate, horizontal=T, ylab="Elite college", xlab="Enrollment Rate",
+     main="Elite College enrollment comparision", col="green")
+plot(Elite, Apps/Enroll, horizontal=T, ylab="Elite college", xlab="# of Applications per Enroll students",
+     main="Comparision of applications per\nenrollment in Colleges", col="blue")
+plot(Elite, perc.alumni, horizontal=T, ylab="Elite college", xlab="% of alumni who donate",
+     main="Comparing # of alumni donating in\nElite & non-elite colleges", col="cyan")
+```
+   
+##### Conclusion on *Hypothesis 1*
+This is true. The minimum tuition of elite colleges is $5000 which is higher than approx 15% of non-elite colleges. The median fee of elite colleges is at $17000 approximately while for non elite its $10000. 75% (IRQ + Upper quartile) of elite colleges fee is greater than $13000 while 75% non-elite colelges have fees less than $13000. Hence, tuition in higher in Elite colleges in general as observed.
+
+##### Conclusion on *Hypothesis 2*
+This is false. Although, from plot, the median and majority (IQR 50%) of both elite and non-elite fall under same range with similar median, we can observe that the median and IQR for elite colleges is slightly less than non-elite college enrollment. When we look at lower and upper quartiles, the highest enrollment rate in elite colleges lower than that of non-elite colleges except for one outlier. The lower quartile shows that the enrollment rate for some non-elite colleges is lesser than elite once but this could be because of too many applicants in these non-elite application because of low entry standards.
+
+##### Conclusion on *Hypothesis 3*
+This is true, from the plot majority (75%) of elite colleges have atleast 4 applicants per enrolled students. For non elite 75% fall below 4. Again here we can observe some outliers similar to Enrollment Rate graph. These outliers just prove that some non-elite colleges have very low bar set for students to apply which is why a lot of students apply resulting in high enrolment rate. Overall, elite colleges have higher number of application per enrolled student showing competition.
+
+##### Conclusion on *Hypothesis 4*
+This is true, from the plot, 50% of elite colleges have more alumni donating than 80% of non-elite colleges.The distribution of the box plot quartiles are even for elite colleges which shows that as the eliteness of a college increases the alumni donating also proportionally increses. For non-elite colleges, 75% of alumni donating is below 30% and distributed evenly. There are 25% colleges which have significantly greater alum donations than the other 75%. This shows the transition of a non-elite college to an elite one.
+
+
+##### *Hypothesis Proposal - The student faculty ratio is better for elite colleges* 
+**Methodology:** Use one-over-other horizontal boxplots of `S.F.Ratio` for elite and non-elite colleges?
